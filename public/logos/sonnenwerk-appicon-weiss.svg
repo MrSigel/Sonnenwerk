@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 120 120" role="img" aria-label="Sonnenwerk">
+  <rect width="120" height="120" rx="28" fill="#FFFFFF"/>
+  <g transform="translate(26,26) scale(1.02)">
+    <line x1="2" y1="52" x2="66" y2="52" stroke="#1F4A38" stroke-width="4" stroke-linecap="round"/>
+    <path d="M14 52 A20 20 0 0 1 54 52 Z" fill="#1F4A38"/>
+    <g stroke="#1F4A38" stroke-width="4" stroke-linecap="round">
+      <line x1="34" y1="6" x2="34" y2="16"/>
+      <line x1="12" y1="14" x2="17" y2="22"/>
+      <line x1="56" y1="14" x2="51" y2="22"/>
+    </g>
+  </g>
+</svg>
