@@ -141,7 +141,10 @@ export function SiteNav() {
           href="/"
           onClick={onLogoClick}
           aria-label={`${BRAND.name} – ${BRAND.slogan}`}
-          className="bg-hunter absolute left-1/2 top-0 z-50 flex -translate-x-1/2 flex-col items-center rounded-b-[1.25rem] border border-t-0 border-white/10 px-5 pb-4 pt-2.5 shadow-[0_18px_38px_-16px_rgba(15,26,21,0.5)] transition-all duration-300 hover:shadow-[0_22px_44px_-16px_rgba(15,26,21,0.6)] sm:px-6 sm:pb-5 sm:pt-3.5"
+          style={{
+            transform: scrolled ? "translateX(-50%) scale(0.78)" : "translateX(-50%) scale(1)",
+          }}
+          className="bg-hunter absolute left-1/2 top-0 z-50 flex origin-top flex-col items-center rounded-b-[1.25rem] border border-t-0 border-white/10 px-5 pb-4 pt-2.5 shadow-[0_18px_38px_-16px_rgba(15,26,21,0.5)] transition-transform duration-300 ease-out hover:shadow-[0_22px_44px_-16px_rgba(15,26,21,0.6)] sm:px-6 sm:pb-5 sm:pt-3.5"
         >
           <Image
             src="/logos/sonnenwerk-icon-weiss.svg"
