@@ -7,6 +7,7 @@ import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { ConsentBanner } from "@/components/consent/ConsentBanner";
 import { MetaPixel } from "@/components/consent/MetaPixel";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
+import { ExitIntentBanner } from "@/components/marketing/ExitIntentBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,6 +51,7 @@ export default function RootLayout({
         <ConsentProvider>
           {children}
           <ScrollToTop />
+          <ExitIntentBanner />
           <ConsentBanner />
           <MetaPixel />
         </ConsentProvider>

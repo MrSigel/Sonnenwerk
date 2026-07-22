@@ -75,6 +75,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/cookie-richtlinie" className={linkClass}>
+                  Cookie-Richtlinie
+                </Link>
+              </li>
+              <li>
                 <CookieSettingsLink className={linkClass} />
               </li>
             </ul>

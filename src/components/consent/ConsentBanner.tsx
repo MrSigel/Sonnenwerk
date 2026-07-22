@@ -32,6 +32,10 @@ export function ConsentBanner() {
           Einwilligung setzen wir zusätzlich Marketing-Cookies (Meta-Pixel), um den
           Erfolg unserer Anzeigen zu messen. Sie können Ihre Auswahl jederzeit über
           „Cookie-Einstellungen" im Fußbereich ändern. Mehr dazu in unserer{" "}
+          <Link href="/cookie-richtlinie" className="text-accent underline underline-offset-2">
+            Cookie-Richtlinie
+          </Link>{" "}
+          und der{" "}
           <Link href="/datenschutz" className="text-accent underline underline-offset-2">
             Datenschutzerklärung
           </Link>
