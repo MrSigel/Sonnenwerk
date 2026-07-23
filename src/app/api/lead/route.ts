@@ -47,12 +47,19 @@ export async function POST(req: Request) {
   // Honeypot + Zeitfalle (§9): leise als Erfolg quittieren, nichts verarbeiten.
   const body = json as Record<string, unknown>;
   const honeypot = typeof body.company === "string" ? body.company : "";
-  const loadedAt = typeof body.formLoadedAt === "number" ? body.formLoadedAt : 0;
-  const tooFast = loadedAt > 0 && Date.now() - loadedAt < MIN_FILL_MS;
+  // Ausfülldauer kommt fertig vom Client (skew-sicher). Fallback auf den alten
+  // formLoadedAt-Zeitstempel nur für evtl. noch gecachte alte Clients.
+  const fillMs =
+    typeof body.fillMs === "number"
+      ? body.fillMs
+      : typeof body.formLoadedAt === "number" && body.formLoadedAt > 0
+        ? Date.now() - body.formLoadedAt
+        : null;
+  const tooFast = fillMs !== null && fillMs >= 0 && fillMs < MIN_FILL_MS;
   if (honeypot.length > 0 || tooFast) {
     console.warn(
       `[lead] spam heuristic triggered — honeypotLen: ${honeypot.length}, tooFast: ${tooFast}, fillMs: ${
-        loadedAt > 0 ? Date.now() - loadedAt : "n/a"
+        fillMs ?? "n/a"
       }`
     );
     return NextResponse.json({ ok: true });

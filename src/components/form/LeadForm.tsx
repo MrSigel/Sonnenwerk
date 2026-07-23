@@ -154,7 +154,10 @@ export function LeadForm() {
     // weiterhin erkannt.
     const payload: Record<string, unknown> = {
       ...values,
-      formLoadedAt: formLoadedAt.current,
+      // Ausfülldauer im Browser messen (eine Uhr → immun gegen Uhr-Differenz
+      // zwischen Browser und Server). Absolute Zeitstempel zu vergleichen war
+      // fehlerhaft und blockierte Nutzer mit leicht abweichender Systemuhr.
+      fillMs: Math.max(0, Date.now() - formLoadedAt.current),
     };
     delete payload.company;
     try {

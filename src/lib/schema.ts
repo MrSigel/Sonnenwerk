@@ -91,7 +91,9 @@ export const leadSchema = z.object({
   // Nutzer blockieren.
   company: z.string().optional().default(""),
 
-  // Zeitfalle (§9): Client-Zeitstempel des Formular-Renderings (ms).
+  // Zeitfalle (§9): im Browser gemessene Ausfülldauer in ms (skew-sicher).
+  fillMs: z.number().int().nonnegative().optional(),
+  // Alt/abwärtskompatibel: Client-Zeitstempel des Renderings (nicht mehr genutzt).
   formLoadedAt: z.number().int().nonnegative().optional(),
 });
 
