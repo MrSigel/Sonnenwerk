@@ -40,9 +40,40 @@ export const leadSchema = z.object({
     .trim()
     .regex(emailRegex, "Bitte geben Sie eine gültige E-Mail-Adresse an."),
 
-  // QUALIFIZIERUNG
-  hauseigentuemer: jaNein,
-  solar_interesse: jaNein,
+  // QUALIFIZIERUNG (Doku: customer.*)
+  hauseigentuemer: jaNein, // customer.is_owner
+  product_interest: z.enum(["PV", "Wärmepumpe", "PV und Wärmepumpe"], {
+    errorMap: () => ({ message: "Bitte wählen Sie Ihr Produktinteresse." }),
+  }),
+  timeframe: z.enum(["sofort", "1-3 Monate", "3-6 Monate", "Keine Angabe"], {
+    errorMap: () => ({ message: "Bitte wählen Sie einen Zeitraum." }),
+  }),
+
+  // GEBÄUDE (Doku: building.*)
+  building_type: z.enum(
+    [
+      "Einfamilienhaus",
+      "Zweifamilienhaus",
+      "Mehrfamilienhaus",
+      "Firmengebäude",
+      "Freilandfläche",
+      "Sonstiges",
+    ],
+    { errorMap: () => ({ message: "Bitte wählen Sie den Gebäudetyp." }) }
+  ),
+  roof_shape: z
+    .array(
+      z.enum([
+        "Satteldach",
+        "Walmdach",
+        "Pultdach",
+        "Flachdach",
+        "Krüppelwalmdach",
+        "Mansarddach",
+        "Sonstiges",
+      ])
+    )
+    .min(1, "Bitte wählen Sie mindestens eine Dachform."),
 
   // Pflicht-Datenschutz-Häkchen
   datenschutz: z.literal(true, {
@@ -74,6 +105,9 @@ export const LEAD_FIELD_LABELS: Record<string, string> = {
   telefon: "Telefonnummer",
   email: "E-Mail",
   hauseigentuemer: "Hauseigentümer",
-  solar_interesse: "Solar-Interesse",
+  product_interest: "Produktinteresse",
+  timeframe: "Zeitraum",
+  building_type: "Gebäudetyp",
+  roof_shape: "Dachform",
   newsletter: "Newsletter",
 };

@@ -23,7 +23,8 @@ const STEPS = [
   { title: "Ihre Daten", fields: ["vorname", "name"] },
   { title: "Ihre Adresse", fields: ["strasse", "hausnummer", "plz", "ort"] },
   { title: "Kontakt", fields: ["telefon", "email"] },
-  { title: "Fast geschafft", fields: ["hauseigentuemer", "solar_interesse", "datenschutz"] },
+  { title: "Ihr Vorhaben", fields: ["product_interest", "timeframe", "hauseigentuemer"] },
+  { title: "Ihr Gebäude", fields: ["building_type", "roof_shape", "datenschutz"] },
 ] as const;
 
 const LAST = STEPS.length - 1;
@@ -35,7 +36,28 @@ const STEP_SCHEMAS = [
   leadSchema.pick({ vorname: true, name: true }),
   leadSchema.pick({ strasse: true, hausnummer: true, plz: true, ort: true }),
   leadSchema.pick({ telefon: true, email: true }),
-  leadSchema.pick({ hauseigentuemer: true, solar_interesse: true, datenschutz: true }),
+  leadSchema.pick({ product_interest: true, timeframe: true, hauseigentuemer: true }),
+  leadSchema.pick({ building_type: true, roof_shape: true, datenschutz: true }),
+] as const;
+
+const PRODUCT_OPTIONS = ["PV", "Wärmepumpe", "PV und Wärmepumpe"] as const;
+const TIMEFRAME_OPTIONS = ["sofort", "1-3 Monate", "3-6 Monate", "Keine Angabe"] as const;
+const BUILDING_OPTIONS = [
+  "Einfamilienhaus",
+  "Zweifamilienhaus",
+  "Mehrfamilienhaus",
+  "Firmengebäude",
+  "Freilandfläche",
+  "Sonstiges",
+] as const;
+const ROOF_OPTIONS = [
+  "Satteldach",
+  "Walmdach",
+  "Pultdach",
+  "Flachdach",
+  "Krüppelwalmdach",
+  "Mansarddach",
+  "Sonstiges",
 ] as const;
 
 export function LeadForm() {
@@ -67,6 +89,7 @@ export function LeadForm() {
       plz: "",
       ort: "",
       email: "",
+      roof_shape: [],
       newsletter: false,
       datenschutz: undefined as unknown as true,
       company: "",
@@ -154,7 +177,10 @@ export function LeadForm() {
         telefon: values.telefon,
         email: values.email,
         hauseigentuemer: values.hauseigentuemer,
-        solar_interesse: values.solar_interesse,
+        product_interest: values.product_interest,
+        timeframe: values.timeframe,
+        building_type: values.building_type,
+        roof_shape: values.roof_shape,
         newsletter: Boolean(values.newsletter),
       });
       router.push("/danke");
@@ -323,26 +349,99 @@ export function LeadForm() {
           </fieldset>
         )}
 
-        {/* SCHRITT 4 — QUALIFIZIERUNG + ZUSTIMMUNG */}
+        {/* SCHRITT 4 — IHR VORHABEN */}
         {step === 3 && (
+          <div className="space-y-5">
+            <OptionCards
+              label="Woran haben Sie Interesse?*"
+              name="product_interest"
+              options={PRODUCT_OPTIONS}
+              register={register}
+              error={errors.product_interest?.message}
+              idFor={fieldId}
+            />
+
+            <div>
+              <label htmlFor={fieldId("timeframe")} className="field-label">
+                Wann möchten Sie umsetzen?*
+              </label>
+              <select
+                id={fieldId("timeframe")}
+                className="field-input"
+                defaultValue=""
+                aria-invalid={invalid("timeframe")}
+                {...register("timeframe")}
+              >
+                <option value="" disabled>
+                  Bitte wählen …
+                </option>
+                {TIMEFRAME_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+              {errors.timeframe && <p className="field-error">{errors.timeframe.message}</p>}
+            </div>
+
+            <JaNeinGroup
+              label="Sind Sie Hauseigentümer?*"
+              name="hauseigentuemer"
+              register={register}
+              error={errors.hauseigentuemer?.message}
+              idFor={fieldId}
+            />
+          </div>
+        )}
+
+        {/* SCHRITT 5 — IHR GEBÄUDE + ZUSTIMMUNG */}
+        {step === 4 && (
           <div>
-            <fieldset className="grid grid-cols-1 gap-4">
-              <legend className="sr-only">Qualifizierung</legend>
-              <JaNeinGroup
-                label="Sind Sie Hauseigentümer?*"
-                name="hauseigentuemer"
-                register={register}
-                error={errors.hauseigentuemer?.message}
-                idFor={fieldId}
-              />
-              <JaNeinGroup
-                label="Haben Sie Interesse an einem Solarangebot?*"
-                name="solar_interesse"
-                register={register}
-                error={errors.solar_interesse?.message}
-                idFor={fieldId}
-              />
-            </fieldset>
+            <div>
+              <label htmlFor={fieldId("building_type")} className="field-label">
+                Gebäudetyp*
+              </label>
+              <select
+                id={fieldId("building_type")}
+                className="field-input"
+                defaultValue=""
+                aria-invalid={invalid("building_type")}
+                {...register("building_type")}
+              >
+                <option value="" disabled>
+                  Bitte wählen …
+                </option>
+                {BUILDING_OPTIONS.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+              {errors.building_type && <p className="field-error">{errors.building_type.message}</p>}
+            </div>
+
+            <div className="mt-5">
+              <span className="field-label" id={`${fieldId("roof_shape")}-label`}>
+                Dachform*{" "}
+                <span className="font-normal text-ink-soft">(Mehrfachauswahl möglich)</span>
+              </span>
+              <div
+                role="group"
+                aria-labelledby={`${fieldId("roof_shape")}-label`}
+                className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3"
+              >
+                {ROOF_OPTIONS.map((opt) => (
+                  <label
+                    key={opt}
+                    className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-small text-ink transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent/5 has-[:checked]:font-medium"
+                  >
+                    <input type="checkbox" value={opt} className="h-4 w-4 accent-accent" {...register("roof_shape")} />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+              {errors.roof_shape && <p className="field-error">{errors.roof_shape.message}</p>}
+            </div>
 
             {/* Datenschutz-Häkchen (Pflicht) */}
             <div className="mt-6">
@@ -461,7 +560,7 @@ function JaNeinGroup({
   idFor,
 }: {
   label: string;
-  name: "hauseigentuemer" | "solar_interesse";
+  name: "hauseigentuemer";
   register: UseFormRegister<LeadInput>;
   error?: string;
   idFor: (n: string) => string;
@@ -482,6 +581,47 @@ function JaNeinGroup({
             className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-line px-4 py-3 text-body text-ink transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent/5 has-[:checked]:font-medium"
           >
             <input type="radio" value={opt} className="h-4 w-4 accent-accent" {...register(name)} />
+            {opt}
+          </label>
+        ))}
+      </div>
+      {error && <p className="field-error">{error}</p>}
+    </div>
+  );
+}
+
+/** Einfachauswahl als Karten (z. B. Produktinteresse). */
+function OptionCards({
+  label,
+  name,
+  options,
+  register,
+  error,
+  idFor,
+}: {
+  label: string;
+  name: "product_interest";
+  options: readonly string[];
+  register: UseFormRegister<LeadInput>;
+  error?: string;
+  idFor: (n: string) => string;
+}) {
+  return (
+    <div>
+      <span className="field-label" id={`${idFor(name)}-label`}>
+        {label}
+      </span>
+      <div
+        role="radiogroup"
+        aria-labelledby={`${idFor(name)}-label`}
+        className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-3"
+      >
+        {options.map((opt) => (
+          <label
+            key={opt}
+            className="flex cursor-pointer items-center justify-center rounded-xl border border-line px-3 py-3 text-center text-small text-ink transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent/5 has-[:checked]:font-medium"
+          >
+            <input type="radio" value={opt} className="sr-only" {...register(name)} />
             {opt}
           </label>
         ))}

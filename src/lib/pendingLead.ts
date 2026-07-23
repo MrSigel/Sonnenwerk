@@ -14,7 +14,10 @@ export type PendingLead = {
   telefon: string;
   email: string;
   hauseigentuemer: "Ja" | "Nein";
-  solar_interesse: "Ja" | "Nein";
+  product_interest: string;
+  timeframe: string;
+  building_type: string;
+  roof_shape: string[];
   newsletter: boolean;
 };
 

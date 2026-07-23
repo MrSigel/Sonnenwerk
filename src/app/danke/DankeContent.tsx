@@ -68,7 +68,10 @@ export function DankeContent() {
           <Row label="Telefonnummer" value={lead.telefon} />
           <Row label="E-Mail" value={lead.email} />
           <Row label="Hauseigentümer" value={lead.hauseigentuemer} />
-          <Row label="Solar-Interesse" value={lead.solar_interesse} />
+          <Row label="Interesse" value={lead.product_interest} />
+          <Row label="Zeitraum" value={lead.timeframe} />
+          <Row label="Gebäudetyp" value={lead.building_type} />
+          <Row label="Dachform" value={lead.roof_shape.join(", ")} />
         </dl>
       </div>
 

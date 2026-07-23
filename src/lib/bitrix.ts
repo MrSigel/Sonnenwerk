@@ -53,15 +53,15 @@ export function buildBitrixPayload(lead: LeadInput, submittedAt: string) {
     },
     customer: {
       is_owner: lead.hauseigentuemer, // "Ja" | "Nein"
-      product_interest: "PV", // Solar-Landingpage → PV
-      timeframe: "Keine Angabe", // im Formular nicht erhoben
+      product_interest: lead.product_interest, // PV | Wärmepumpe | PV und Wärmepumpe
+      timeframe: lead.timeframe, // sofort | 1-3 Monate | 3-6 Monate | Keine Angabe
     },
     building: {
-      type: "Sonstiges", // Pflicht-enum ohne "Keine Angabe" → neutraler Default
-      roof_shape: ["Sonstiges"], // im Formular nicht erhoben
+      type: lead.building_type,
+      roof_shape: lead.roof_shape,
     },
-    // recording.call_audio_url: Pflicht laut Doku, bei Web-Leads NICHT vorhanden
-    //   → bewusst weggelassen (mit LIMITBREAKERS für LP-Endpunkt abzustimmen).
+    // recording.call_audio_url: Pflicht laut Doku – wird ergänzt, sobald die
+    //   Aufzeichnungs-/Hosting-Lösung festgelegt ist (noch offen).
   };
 
   return { payload, supplierLeadId, isTest };

@@ -83,60 +83,7 @@ async function send(opts: {
 }
 
 /* ─────────────────────────────────────────────────────────────
- * A) Lead-Mail an den Empfänger (das Unternehmen), reply_to = Kunde
- * ───────────────────────────────────────────────────────────── */
-export async function sendLeadMail(lead: LeadInput): Promise<SendResult> {
-  const { iso, human } = nowFormatted();
-  const rows: [string, string][] = [
-    ["Vorname", lead.vorname],
-    ["Name", lead.name],
-    ["Straße", lead.strasse],
-    ["Hausnummer", lead.hausnummer],
-    ["Postleitzahl", lead.plz],
-    ["Ort", lead.ort],
-    ["Telefonnummer", lead.telefon],
-    ["E-Mail", lead.email],
-    ["Hauseigentümer", lead.hauseigentuemer],
-    ["Solar-Interesse", lead.solar_interesse],
-    ["Newsletter", lead.newsletter ? "Ja" : "Nein"],
-    ["Datenschutz", "akzeptiert"],
-    ["Eingegangen am", `${human} (${iso})`],
-    ["Quelle", "Sonnenwerk-Landingpage"],
-  ];
-
-  const htmlRows = rows
-    .map(
-      ([k, v]) =>
-        `<tr><td style="padding:6px 12px 6px 0;color:#47514B;white-space:nowrap;vertical-align:top;">${esc(
-          k
-        )}</td><td style="padding:6px 0;font-weight:600;">${esc(v)}</td></tr>`
-    )
-    .join("");
-
-  const html = shell(`
-    <h1 style="font-size:20px;margin:0 0 16px;">Neue Solar-Anfrage über Sonnenwerk</h1>
-    <table style="width:100%;border-collapse:collapse;font-size:14px;">${htmlRows}</table>
-  `);
-
-  const text = [
-    "Neue Solar-Anfrage über Sonnenwerk",
-    "",
-    ...rows.map(([k, v]) => `${(k + ":").padEnd(20)}${v}`),
-  ].join("\n");
-
-  const subject = `Neue Solar-Anfrage – ${lead.vorname} ${lead.name}, ${lead.plz} ${lead.ort}`;
-
-  return send({
-    to: env.LEAD_RECIPIENT,
-    subject,
-    html,
-    text,
-    replyTo: lead.email,
-  });
-}
-
-/* ─────────────────────────────────────────────────────────────
- * B) Bestätigungs-Mail an den Kunden
+ * Bestätigungs-Mail an den Kunden
  * ───────────────────────────────────────────────────────────── */
 export async function sendCustomerConfirmation(lead: LeadInput): Promise<SendResult> {
   const html = shell(`
