@@ -75,21 +75,6 @@ export function DankeContent() {
         </dl>
       </div>
 
-      <p className="mt-6 text-small text-ink-soft">
-        {lead.newsletter ? (
-          <>
-            Sie haben den Newsletter aktiviert. Zum Abschluss der Anmeldung senden wir Ihnen
-            noch eine <strong className="text-ink">Bestätigungs-E-Mail</strong>. Bitte
-            bestätigen Sie darin Ihre Anmeldung – erst dann erhalten Sie unseren Newsletter.
-          </>
-        ) : (
-          <>
-            Sie haben den Newsletter nicht aktiviert. Möchten Sie künftig Tipps und
-            Förder-Updates erhalten, können Sie ihn bei einer nächsten Anfrage abonnieren.
-          </>
-        )}
-      </p>
-
       <Link href="/" className="btn-ghost mt-8">
         Zur Startseite
       </Link>
