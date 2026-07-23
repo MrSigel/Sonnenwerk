@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { leadSchema } from "@/lib/schema";
-import { insertLead } from "@/lib/leads";
-import { sendLeadMail, sendCustomerConfirmation, sendDoiMail } from "@/lib/mail";
+import { sendToBitrix } from "@/lib/bitrix";
+import { sendCustomerConfirmation, sendDoiMail } from "@/lib/mail";
 import { createDoiToken } from "@/lib/doi";
 import { rateLimit, LIMITS, clientIp } from "@/lib/rateLimit";
 import { hasDoi, hasResend, siteUrl } from "@/lib/env";
 
-// Node-Runtime (Resend-SDK benötigt Node, kein Edge — §8.2).
+// Node-Runtime.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -63,25 +63,26 @@ export async function POST(req: Request) {
     );
   }
   const lead = parsed.data;
+  const submittedAt = new Date().toISOString();
 
-  // 1) Lead zuerst speichern (§17.3) — geht dem Mailversand voraus.
-  const stored = await insertLead(lead);
-  if (stored.configured && !stored.stored) {
-    // Supabase eingerichtet, aber Insert fehlgeschlagen → 500, nichts versenden.
-    console.error("[lead] supabase insert failed:", stored.error);
-    return NextResponse.json({ ok: false, error: "storage" }, { status: 500 });
+  // 1) Lead direkt an den Bitrix-/LIMITBREAKERS-Webhook übergeben (keine
+  //    Backend-Speicherung mehr). Bei Fehler: freundliche Meldung, damit der
+  //    Nutzer erneut senden kann (Dedup läuft empfängerseitig über Tel./E-Mail).
+  const forwarded = await sendToBitrix(lead, submittedAt);
+  if (forwarded.skipped) {
+    // Webhook-URL nicht konfiguriert (z. B. lokal / leere ENV): Formular soll
+    // trotzdem funktionieren. In Produktion muss BITRIX_WEBHOOK_URL gesetzt sein.
+    console.warn("[lead] bitrix webhook not configured — lead NOT forwarded");
+  } else if (!forwarded.ok) {
+    console.error("[lead] bitrix forward failed:", forwarded.status ?? forwarded.error);
+    return NextResponse.json({ ok: false, error: "forward" }, { status: 502 });
   }
 
-  // 2) Mails versenden (§8.2). Fehler blockieren den Lead nicht.
+  // 2) Kundenbestätigung + Newsletter-DOI über Resend (nicht blockierend).
   if (hasResend()) {
-    const [leadMail, custMail] = await Promise.all([
-      sendLeadMail(lead),
-      sendCustomerConfirmation(lead),
-    ]);
-    if (!leadMail.ok) console.error("[lead] lead mail failed:", leadMail.error);
+    const custMail = await sendCustomerConfirmation(lead);
     if (!custMail.ok) console.error("[lead] customer mail failed:", custMail.error);
 
-    // 3) Newsletter-DOI nur bei Opt-in und nur wenn konfiguriert (§8A).
     if (lead.newsletter && hasDoi()) {
       const token = createDoiToken(lead.email);
       const confirmUrl = `${siteUrl()}/api/newsletter/confirm?token=${encodeURIComponent(
@@ -90,9 +91,6 @@ export async function POST(req: Request) {
       const doi = await sendDoiMail(lead.email, confirmUrl);
       if (!doi.ok) console.error("[lead] doi mail failed:", doi.error);
     }
-  } else {
-    // Kein Resend konfiguriert: Lead ist ggf. gespeichert, Versand inaktiv.
-    console.warn("[lead] resend not configured — emails skipped");
   }
 
   return NextResponse.json({ ok: true });

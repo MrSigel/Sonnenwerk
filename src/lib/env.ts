@@ -31,10 +31,16 @@ export const env = {
   ADMIN_SEED_EMAIL: read("ADMIN_SEED_EMAIL"),
   ADMIN_SEED_PASSWORD: read("ADMIN_SEED_PASSWORD"),
 
+  // Bitrix / LIMITBREAKERS Lead-Webhook (n8n). URL enthält den Token im Pfad.
+  BITRIX_WEBHOOK_URL: read("BITRIX_WEBHOOK_URL"),
+
   // Optional: Upstash Rate-Limiting
   UPSTASH_REDIS_REST_URL: read("UPSTASH_REDIS_REST_URL"),
   UPSTASH_REDIS_REST_TOKEN: read("UPSTASH_REDIS_REST_TOKEN"),
 };
+
+/** Lead-Weiterleitung an Bitrix/LIMITBREAKERS-Webhook möglich (URL vorhanden). */
+export const hasBitrix = () => Boolean(env.BITRIX_WEBHOOK_URL);
 
 /** Resend-Versand ist möglich (Key + Absender + Empfänger vorhanden). */
 export const hasResend = () =>
