@@ -147,11 +147,21 @@ export function LeadForm() {
 
   const onSubmit = async (values: LeadInput) => {
     setServerError(null);
+    // Honeypot ("company") NIE aus dem echten Formular mitsenden: Autofill/
+    // Passwort-Manager befüllen das unsichtbare Feld gelegentlich und würden
+    // sonst den serverseitigen Spam-Filter fälschlich auslösen — der Lead ginge
+    // verloren. Direkt-POST-Bots, die das Feld befüllen, werden serverseitig
+    // weiterhin erkannt.
+    const payload: Record<string, unknown> = {
+      ...values,
+      formLoadedAt: formLoadedAt.current,
+    };
+    delete payload.company;
     try {
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, formLoadedAt: formLoadedAt.current }),
+        body: JSON.stringify(payload),
       });
 
       if (res.status === 429) {

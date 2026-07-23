@@ -85,8 +85,11 @@ export const leadSchema = z.object({
   // Optionaler Newsletter (kein Pflichtfeld)
   newsletter: z.boolean().default(false),
 
-  // Spam-Schutz (§9): unsichtbares Honeypot-Feld — muss leer sein.
-  company: z.string().max(0).optional().default(""),
+  // Spam-Schutz (§9): unsichtbares Honeypot-Feld. Wird NUR serverseitig aus dem
+  // Roh-Body ausgewertet (route.ts). Client-seitig bewusst KEINE .max(0)-Prüfung:
+  // sonst würde ein von Autofill/Passwort-Manager befülltes Feld den echten
+  // Nutzer blockieren.
+  company: z.string().optional().default(""),
 
   // Zeitfalle (§9): Client-Zeitstempel des Formular-Renderings (ms).
   formLoadedAt: z.number().int().nonnegative().optional(),

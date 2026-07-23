@@ -50,7 +50,11 @@ export async function POST(req: Request) {
   const loadedAt = typeof body.formLoadedAt === "number" ? body.formLoadedAt : 0;
   const tooFast = loadedAt > 0 && Date.now() - loadedAt < MIN_FILL_MS;
   if (honeypot.length > 0 || tooFast) {
-    console.warn("[lead] spam heuristic triggered");
+    console.warn(
+      `[lead] spam heuristic triggered — honeypotLen: ${honeypot.length}, tooFast: ${tooFast}, fillMs: ${
+        loadedAt > 0 ? Date.now() - loadedAt : "n/a"
+      }`
+    );
     return NextResponse.json({ ok: true });
   }
 
