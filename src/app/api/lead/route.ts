@@ -70,12 +70,38 @@ export async function POST(req: Request) {
   //    Nutzer erneut senden kann (Dedup läuft empfängerseitig über Tel./E-Mail).
   const forwarded = await sendToBitrix(lead, submittedAt);
   if (forwarded.skipped) {
-    // Webhook-URL nicht konfiguriert (z. B. lokal / leere ENV): Formular soll
-    // trotzdem funktionieren. In Produktion muss BITRIX_WEBHOOK_URL gesetzt sein.
-    console.warn("[lead] bitrix webhook not configured — lead NOT forwarded");
+    // Webhook-URL nicht konfiguriert. In Produktion (inkl. Vercel-Preview, dort
+    // ist NODE_ENV ebenfalls "production") darf das NICHT still als Erfolg
+    // durchgehen — sonst gehen Leads unbemerkt verloren. Nur im lokalen Dev
+    // (NODE_ENV=development) läuft das Formular ohne Webhook weiter.
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[lead] BITRIX_WEBHOOK_URL not configured in this deployment — lead NOT forwarded (redeploy required after setting the ENV var)"
+      );
+      return NextResponse.json({ ok: false, error: "not_configured" }, { status: 502 });
+    }
+    console.warn("[lead] (dev) bitrix webhook not configured — continuing without forward");
   } else if (!forwarded.ok) {
-    console.error("[lead] bitrix forward failed:", forwarded.status ?? forwarded.error);
+    console.error(
+      "[lead] bitrix forward failed — status:",
+      forwarded.status ?? "-",
+      "error:",
+      forwarded.error ?? "-",
+      "test:",
+      forwarded.isTest,
+      "id:",
+      forwarded.supplierLeadId
+    );
     return NextResponse.json({ ok: false, error: "forward" }, { status: 502 });
+  } else {
+    console.log(
+      "[lead] forwarded OK — status:",
+      forwarded.status,
+      "test:",
+      forwarded.isTest,
+      "id:",
+      forwarded.supplierLeadId
+    );
   }
 
   // 2) Kundenbestätigung + Newsletter-DOI über Resend (nicht blockierend).
