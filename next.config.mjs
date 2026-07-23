@@ -11,11 +11,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Admin-Bereich und Danke-Seite nie indexieren
-        source: "/admin/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-      },
-      {
+        // Danke-Seite nie indexieren
         source: "/danke",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },

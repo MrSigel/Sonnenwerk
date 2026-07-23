@@ -101,14 +101,15 @@ export default function DatenschutzPage() {
           </section>
 
           <section>
-            <h2>6. Speicherung und interner Bereich (Supabase)</h2>
+            <h2>6. Übermittlung an den Vermittlungspartner</h2>
             <p>
-              Ihre Anfragedaten werden zusätzlich bei unserem Dienstleister Supabase
-              (Datenbank und Login, EU-Region) als Auftragsverarbeiter gespeichert und in
-              einem zugangsgeschützten internen Bereich verarbeitet. Zweck ist die
-              Bearbeitung und Nachverfolgung Ihrer Anfrage. Rechtsgrundlage ist Art. 6
-              Abs. 1 lit. b und f DSGVO (Vertragsanbahnung sowie unser berechtigtes
-              Interesse an einer ordnungsgemäßen Bearbeitung).
+              Zur Vermittlung Ihrer Anfrage werden die von Ihnen angegebenen Daten über eine
+              gesicherte Schnittstelle (Webhook) an unseren Vermittlungspartner übermittelt,
+              der die Anfrage an geeignete, geprüfte Solar-Fachbetriebe weiterleitet. Zweck
+              ist die Bearbeitung und Weitervermittlung Ihrer Anfrage. Rechtsgrundlage ist
+              Art. 6 Abs. 1 lit. a und b DSGVO (Einwilligung sowie Vertragsanbahnung auf Ihre
+              Anfrage hin). Eine dauerhafte Speicherung der Anfragedaten in einer eigenen
+              Datenbank des Betreibers findet nicht statt.
             </p>
           </section>
 
@@ -212,7 +213,7 @@ export default function DatenschutzPage() {
             <h2>13. Empfänger / eingesetzte Dienstleister im Überblick</h2>
             <ul>
               <li>Resend, Inc. (USA) – E-Mail-Versand</li>
-              <li>Supabase – Datenspeicherung und Login (EU-Region)</li>
+              <li>Vermittlungspartner – Weiterleitung der Anfrage an Solar-Fachbetriebe (per Webhook)</li>
               <li>Meta Platforms Ireland Ltd. – Meta-Pixel / Meta Ads (nur mit Einwilligung)</li>
               <li>Photon / OpenStreetMap (EU) – Adress-Autovervollständigung im Formular</li>
             </ul>

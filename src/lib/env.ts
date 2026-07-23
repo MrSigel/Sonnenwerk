@@ -24,13 +24,6 @@ export const env = {
   // Meta-Pixel (öffentlich)
   META_PIXEL_ID: read("NEXT_PUBLIC_META_PIXEL_ID"),
 
-  // Supabase
-  SUPABASE_URL: read("NEXT_PUBLIC_SUPABASE_URL"),
-  SUPABASE_ANON_KEY: read("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
-  SUPABASE_SERVICE_ROLE_KEY: read("SUPABASE_SERVICE_ROLE_KEY"),
-  ADMIN_SEED_EMAIL: read("ADMIN_SEED_EMAIL"),
-  ADMIN_SEED_PASSWORD: read("ADMIN_SEED_PASSWORD"),
-
   // Bitrix / LIMITBREAKERS Lead-Webhook (n8n). URL enthält den Token im Pfad.
   BITRIX_WEBHOOK_URL: read("BITRIX_WEBHOOK_URL"),
 
@@ -48,14 +41,6 @@ export const hasResend = () =>
 
 /** Newsletter-DOI ist möglich (Resend + Secret + Basis-URL vorhanden). */
 export const hasDoi = () => Boolean(hasResend() && env.DOI_SECRET && env.SITE_URL);
-
-/** Supabase serverseitig nutzbar (URL + Service-Role-Key vorhanden). */
-export const hasSupabaseServer = () =>
-  Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
-
-/** Supabase clientseitig nutzbar (URL + anon-Key vorhanden). */
-export const hasSupabaseClient = () =>
-  Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY);
 
 /** Meta-Pixel konfiguriert (öffentliche Pixel-ID vorhanden). */
 export const hasMetaPixel = () => Boolean(env.META_PIXEL_ID);

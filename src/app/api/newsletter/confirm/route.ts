@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { verifyDoiToken } from "@/lib/doi";
-import { confirmNewsletter } from "@/lib/leads";
 import { sendDoiConfirmedNotice } from "@/lib/mail";
 import { rateLimit, LIMITS, clientIp } from "@/lib/rateLimit";
 import { hasResend, siteUrl } from "@/lib/env";
@@ -27,8 +26,7 @@ export async function GET(req: Request) {
     return NextResponse.redirect(`${base}/newsletter-link-ungueltig`, { status: 303 });
   }
 
-  // Anmeldung bestätigen: DB-Flag setzen (falls konfiguriert) + Beleg an Empfänger.
-  await confirmNewsletter(result.email);
+  // Anmeldung bestätigen: Beleg an Empfänger (kein DB-Flag mehr, kein Backend).
   if (hasResend()) {
     const notice = await sendDoiConfirmedNotice(
       result.email,
