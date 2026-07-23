@@ -5,7 +5,7 @@ import { useForm, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { leadSchema, type LeadInput } from "@/lib/schema";
+import { leadSchema, LEAD_FIELD_LABELS, type LeadInput } from "@/lib/schema";
 import { storePendingLead } from "@/lib/pendingLead";
 import { Check } from "@/components/ui/Check";
 import { AddressAutocomplete } from "./AddressAutocomplete";
@@ -191,13 +191,55 @@ export function LeadForm() {
     }
   };
 
+  // Schlägt die Gesamtvalidierung beim Absenden fehl, würde ohne dies NICHTS
+  // sichtbar passieren – die Fehlermeldung säße evtl. auf einem ausgeblendeten
+  // Schritt (oder auf dem unsichtbaren Honeypot). Deshalb: Feld klar benennen,
+  // zum betroffenen Schritt springen, Honeypot-Fehlbefüllung automatisch heilen.
+  const onInvalid = (formErrors: typeof errors) => {
+    const errs = formErrors as Record<string, unknown>;
+
+    // Honeypot ("company") ist für echte Nutzer unsichtbar und wird NUR
+    // serverseitig ausgewertet. Füllt ein Passwort-Manager/Autofill es, darf das
+    // einen echten Nutzer nicht blockieren → leeren und (falls einzige Ursache)
+    // direkt erneut absenden.
+    if (errs.company) {
+      setValue("company", "", { shouldValidate: false });
+      clearErrors("company");
+      if (Object.keys(errs).length === 1) {
+        setTimeout(() => void handleSubmit(onSubmit, onInvalid)(), 0);
+        return;
+      }
+    }
+
+    const badStep = STEPS.findIndex((s) =>
+      (s.fields as readonly string[]).some((f) => errs[f])
+    );
+    const target = badStep >= 0 ? badStep : step;
+    if (target !== step) setStep(target);
+
+    const firstField = (STEPS[target].fields as readonly string[]).find((f) => errs[f]);
+    const label = firstField ? LEAD_FIELD_LABELS[firstField] ?? firstField : "";
+    setServerError(
+      label
+        ? `Bitte vervollständigen Sie noch „${label}". Wir haben Sie zum betreffenden Schritt gebracht.`
+        : "Bitte prüfen Sie Ihre Eingaben – ein Feld ist noch unvollständig."
+    );
+    if (firstField) {
+      try {
+        setFocus(firstField as keyof LeadInput);
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
   const invalid = (name: keyof LeadInput) => (errors[name] ? "true" : undefined);
   const fieldId = useMemo(() => (n: string) => `lead-${n}`, []);
 
   return (
     <form
       noValidate
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
       onKeyDown={onFormKeyDown}
       className="card p-5 sm:p-6"
       aria-label="Kontaktformular für Ihre Solar-Anfrage"
