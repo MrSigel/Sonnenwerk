@@ -26,8 +26,16 @@ import { EmailAutocomplete } from "./EmailAutocomplete";
  */
 
 const STEPS = [
-  { title: "Ihr Vorhaben", fields: ["product_interest", "timeframe", "hauseigentuemer"] },
-  { title: "Ihr Gebäude", fields: ["building_type", "roof_shape"] },
+  {
+    title: "Ihr Vorhaben",
+    fields: [
+      "product_interest",
+      "timeframe",
+      "hauseigentuemer",
+      "building_type",
+      "roof_shape",
+    ],
+  },
   {
     title: "Ihre Kontaktdaten",
     fields: [
@@ -50,8 +58,13 @@ const LAST = STEPS.length - 1;
 // (RHF `trigger` würde mit Zod-Resolver das GESAMTE Schema prüfen und wegen der
 //  noch leeren späteren Felder fehlschlagen.)
 const STEP_SCHEMAS = [
-  leadSchema.pick({ product_interest: true, timeframe: true, hauseigentuemer: true }),
-  leadSchema.pick({ building_type: true, roof_shape: true }),
+  leadSchema.pick({
+    product_interest: true,
+    timeframe: true,
+    hauseigentuemer: true,
+    building_type: true,
+    roof_shape: true,
+  }),
   leadSchema.pick({
     vorname: true,
     name: true,
@@ -65,7 +78,12 @@ const STEP_SCHEMAS = [
   }),
 ] as const;
 
-const PRODUCT_OPTIONS = ["PV", "Wärmepumpe", "PV und Wärmepumpe"] as const;
+// Nur Photovoltaik. Der übertragene Wert muss exakt "PV" bleiben — die
+// LIMITBREAKERS-Spezifikation lässt für product_interest ausschließlich
+// "PV" | "Wärmepumpe" | "PV und Wärmepumpe" zu; angezeigt wird der
+// ausgeschriebene Begriff.
+const PRODUCT_OPTIONS = ["PV"] as const;
+const PRODUCT_LABELS: Record<string, string> = { PV: "Photovoltaik" };
 const TIMEFRAME_OPTIONS = ["sofort", "1-3 Monate", "3-6 Monate", "Keine Angabe"] as const;
 const BUILDING_OPTIONS = [
   "Einfamilienhaus",
@@ -115,6 +133,8 @@ export function LeadForm() {
       ort: "",
       email: "",
       roof_shape: [],
+      // Photovoltaik ist die einzige Auswahl und dauerhaft vorausgewählt.
+      product_interest: "PV",
       newsletter: false,
       datenschutz: undefined as unknown as true,
       company: "",
@@ -318,13 +338,15 @@ export function LeadForm() {
 
       {/* Schritt-Inhalt (mit sanfter Einblendung) */}
       <div key={step} className="wizard-step">
-        {/* SCHRITT 1 — IHR VORHABEN (drei schnelle Klicks) */}
+        {/* SCHRITT 1 — ALLES ZUR PV-ANLAGE */}
         {step === 0 && (
           <div className="space-y-5">
             <OptionCards
               label="Was möchten Sie umsetzen?*"
               name="product_interest"
               options={PRODUCT_OPTIONS}
+              labels={PRODUCT_LABELS}
+              cols="sm:grid-cols-1"
               register={register}
               error={errors.product_interest?.message}
               idFor={fieldId}
@@ -345,12 +367,6 @@ export function LeadForm() {
               error={errors.hauseigentuemer?.message}
               idFor={fieldId}
             />
-          </div>
-        )}
-
-        {/* SCHRITT 2 — IHR GEBÄUDE */}
-        {step === 1 && (
-          <div className="space-y-5">
             <OptionCards
               label="Um welches Gebäude geht es?*"
               name="building_type"
@@ -385,8 +401,8 @@ export function LeadForm() {
           </div>
         )}
 
-        {/* SCHRITT 3 — KONTAKTDATEN + ZUSTIMMUNG */}
-        {step === 2 && (
+        {/* SCHRITT 2 — KONTAKTDATEN + ZUSTIMMUNG */}
+        {step === 1 && (
           <div className="space-y-4">
             <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <legend className="sr-only">Name</legend>
@@ -640,6 +656,7 @@ function OptionCards({
   label,
   name,
   options,
+  labels,
   cols = "sm:grid-cols-3",
   register,
   error,
@@ -648,6 +665,8 @@ function OptionCards({
   label: string;
   name: "product_interest" | "timeframe" | "building_type";
   options: readonly string[];
+  /** Abweichende Anzeigetexte; der gesendete Wert bleibt die Option selbst. */
+  labels?: Record<string, string>;
   /** Spalten ab sm — Anzahl passend zur Optionenzahl. */
   cols?: string;
   register: UseFormRegister<LeadInput>;
@@ -662,7 +681,9 @@ function OptionCards({
       <div
         role="radiogroup"
         aria-labelledby={`${idFor(name)}-label`}
-        className={`mt-1 grid grid-cols-2 gap-2 ${cols}`}
+        className={`mt-1 grid gap-2 ${
+          options.length > 1 ? "grid-cols-2" : "grid-cols-1"
+        } ${cols}`}
       >
         {options.map((opt) => (
           <label
@@ -670,7 +691,7 @@ function OptionCards({
             className="flex cursor-pointer items-center justify-center rounded-xl border border-line px-3 py-3 text-center text-small text-ink transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent/5 has-[:checked]:font-medium"
           >
             <input type="radio" value={opt} className="sr-only" {...register(name)} />
-            {opt}
+            {labels?.[opt] ?? opt}
           </label>
         ))}
       </div>
