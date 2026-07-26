@@ -132,7 +132,6 @@ export function AddressAutocomplete({
             }}
           />
 
-          {error && <p className="field-error">{error}</p>}
         </div>
       )}
     />

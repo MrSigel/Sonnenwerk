@@ -381,7 +381,6 @@ export function LeadForm() {
                   </label>
                 ))}
               </div>
-              {errors.roof_shape && <p className="field-error">{errors.roof_shape.message}</p>}
             </div>
           </div>
         )}
@@ -403,7 +402,6 @@ export function LeadForm() {
                   aria-invalid={invalid("vorname")}
                   {...register("vorname")}
                 />
-                {errors.vorname && <p className="field-error">{errors.vorname.message}</p>}
               </div>
               <div>
                 <label htmlFor={fieldId("name")} className="field-label">
@@ -417,7 +415,6 @@ export function LeadForm() {
                   aria-invalid={invalid("name")}
                   {...register("name")}
                 />
-                {errors.name && <p className="field-error">{errors.name.message}</p>}
               </div>
             </fieldset>
 
@@ -445,7 +442,6 @@ export function LeadForm() {
                   aria-invalid={invalid("hausnummer")}
                   {...register("hausnummer")}
                 />
-                {errors.hausnummer && <p className="field-error">{errors.hausnummer.message}</p>}
               </div>
               <div className="sm:col-span-2">
                 <AddressAutocomplete
@@ -486,7 +482,6 @@ export function LeadForm() {
                   {...register("telefon")}
                 />
                 <p className="mt-1 text-small text-ink-soft">Fachpartner rufen zuerst an.</p>
-                {errors.telefon && <p className="field-error">{errors.telefon.message}</p>}
               </div>
               <EmailAutocomplete
                 control={control}
@@ -516,7 +511,6 @@ export function LeadForm() {
                   .
                 </span>
               </label>
-              {errors.datenschutz && <p className="field-error">{errors.datenschutz.message}</p>}
             </div>
 
             {/* Newsletter-Opt-in (optional) */}
@@ -637,7 +631,6 @@ function JaNeinGroup({
           </label>
         ))}
       </div>
-      {error && <p className="field-error">{error}</p>}
     </div>
   );
 }
@@ -681,7 +674,6 @@ function OptionCards({
           </label>
         ))}
       </div>
-      {error && <p className="field-error">{error}</p>}
     </div>
   );
 }

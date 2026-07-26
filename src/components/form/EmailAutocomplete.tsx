@@ -106,7 +106,6 @@ export function EmailAutocomplete({
             }}
           />
 
-          {error && <p className="field-error">{error}</p>}
         </div>
       )}
     />
