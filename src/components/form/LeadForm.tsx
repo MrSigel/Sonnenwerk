@@ -28,13 +28,7 @@ import { EmailAutocomplete } from "./EmailAutocomplete";
 const STEPS = [
   {
     title: "Ihr Vorhaben",
-    fields: [
-      "product_interest",
-      "timeframe",
-      "hauseigentuemer",
-      "building_type",
-      "roof_shape",
-    ],
+    fields: ["product_interest", "timeframe", "hauseigentuemer", "building_type"],
   },
   {
     title: "Ihre Kontaktdaten",
@@ -63,7 +57,6 @@ const STEP_SCHEMAS = [
     timeframe: true,
     hauseigentuemer: true,
     building_type: true,
-    roof_shape: true,
   }),
   leadSchema.pick({
     vorname: true,
@@ -93,15 +86,10 @@ const BUILDING_OPTIONS = [
   "Freilandfläche",
   "Sonstiges",
 ] as const;
-const ROOF_OPTIONS = [
-  "Satteldach",
-  "Walmdach",
-  "Pultdach",
-  "Flachdach",
-  "Krüppelwalmdach",
-  "Mansarddach",
-  "Sonstiges",
-] as const;
+// Die Dachform wird nicht mehr abgefragt. building.roof_shape ist bei
+// LIMITBREAKERS aber Pflicht (Spezifikation S. 3) — daher wird fest der
+// zulässige Wert "Sonstiges" übertragen, damit der Lead nicht abgelehnt wird.
+const ROOF_SHAPE_FALLBACK = ["Sonstiges"] as const;
 
 export function LeadForm() {
   const router = useRouter();
@@ -132,7 +120,7 @@ export function LeadForm() {
       plz: "",
       ort: "",
       email: "",
-      roof_shape: [],
+      roof_shape: [...ROOF_SHAPE_FALLBACK],
       // Photovoltaik ist die einzige Auswahl und dauerhaft vorausgewählt.
       product_interest: "PV",
       newsletter: false,
@@ -376,28 +364,6 @@ export function LeadForm() {
               error={errors.building_type?.message}
               idFor={fieldId}
             />
-
-            <div>
-              <span className="field-label" id={`${fieldId("roof_shape")}-label`}>
-                Welche Dachform hat das Gebäude?*{" "}
-                <span className="font-normal text-ink-soft">(Mehrfachauswahl möglich)</span>
-              </span>
-              <div
-                role="group"
-                aria-labelledby={`${fieldId("roof_shape")}-label`}
-                className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3"
-              >
-                {ROOF_OPTIONS.map((opt) => (
-                  <label
-                    key={opt}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-small text-ink transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent/5 has-[:checked]:font-medium"
-                  >
-                    <input type="checkbox" value={opt} className="h-4 w-4 accent-accent" {...register("roof_shape")} />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 

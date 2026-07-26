@@ -125,7 +125,7 @@ export default function DatenschutzPage() {
               Zeitpunkt der Anmeldung, den Zeitpunkt der Bestätigung sowie Ihre
               E-Mail-Adresse. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a
               DSGVO). Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft
-              widerrufen, z. B. per E-Mail an <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
+              widerrufen, z. B. per E-Mail an <a href={`mailto:${COMPANY.privacyEmail}`}>{COMPANY.privacyEmail}</a>.
             </p>
           </section>
 
@@ -206,7 +206,7 @@ export default function DatenschutzPage() {
             </ul>
             <p>
               Zur Ausübung Ihrer Rechte oder bei Fragen zum Datenschutz wenden Sie sich
-              bitte an <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
+              bitte an <a href={`mailto:${COMPANY.privacyEmail}`}>{COMPANY.privacyEmail}</a>.
             </p>
           </section>
 
