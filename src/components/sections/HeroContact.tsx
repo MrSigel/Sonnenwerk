@@ -67,11 +67,16 @@ export function HeroContact() {
             priorisiert (LCP).
           */}
           <Image
-            src="/img/hero-haus.jpg"
+            src="/img/hero-haus-neu.jpeg"
             alt="Moderne Sichtbeton-Immobilie mit integrierter Solaranlage auf dem Dach, Familie davor"
             fill
             priority
             sizes="100vw"
+            // Gleiches Motiv, aber die schwächer komprimierte Quelldatei
+            // (565 statt 234 KB). quality=92 verhindert zusätzlich, dass
+            // next/image das bereits komprimierte JPEG ein zweites Mal
+            // stark rechnet (Default 75) — das erzeugte den matschigen Look.
+            quality={92}
             className="object-cover"
           />
           {/* Jagdgrün-Scrim für Textkontrast */}
