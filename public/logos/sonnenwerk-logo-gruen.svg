@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" width="320" height="140" role="img" aria-label="Sonnenwerk – Geprüfte Solar-Angebote aus Ihrer Region.">
+  <title>Sonnenwerk</title>
+  <!-- Bildmarke: Sonne über Horizont. Alles exakt symmetrisch um x = 32. -->
+  <g transform="translate(128 8)" fill="none" stroke="#1F4A38" stroke-width="4" stroke-linecap="round">
+    <!-- Strahlen -->
+    <line x1="32" y1="6" x2="32" y2="16" />
+    <line x1="13" y1="13" x2="18.5" y2="21" />
+    <line x1="51" y1="13" x2="45.5" y2="21" />
+    <!-- Sonnenkuppel -->
+    <path d="M14 50 A18 18 0 0 1 50 50 Z" fill="#1F4A38" stroke="none" />
+    <!-- Horizont -->
+    <line x1="5" y1="50" x2="59" y2="50" />
+  </g>
+  <!-- Wortmarke -->
+  <text x="160" y="104" text-anchor="middle" fill="#0F1A15"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif"
+        font-size="30" font-weight="700" letter-spacing="-0.6">Sonnenwerk</text>
+  <!-- Slogan -->
+  <text x="160" y="124" text-anchor="middle" fill="#47514B"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif"
+        font-size="10.5" font-weight="400" letter-spacing="0.2">Geprüfte Solar-Angebote aus Ihrer Region.</text>
+</svg>

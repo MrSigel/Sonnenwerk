@@ -12,6 +12,8 @@ export const COMPANY = {
   city: "66424 Homburg / Saarland",
   ceo: "Florian Feit",
   email: "office@strom-distributor.de",
+  // Eigene Adresse für Datenschutz-Anliegen (§ Datenschutz 1. Verantwortlicher).
+  privacyEmail: "datenschutz@strom-distributor.de",
   phone: "06024 – 3061638",
   registerCourt: "Saarbrücken",
   registerNumber: "HRB 103579",

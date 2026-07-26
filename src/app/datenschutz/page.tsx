@@ -40,7 +40,8 @@ export default function DatenschutzPage() {
               <br />
               Vertreten durch den Geschäftsführer: {COMPANY.ceo}
               <br />
-              E-Mail: <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+              E-Mail:{" "}
+              <a href={`mailto:${COMPANY.privacyEmail}`}>{COMPANY.privacyEmail}</a>
               <br />
               Telefon: {COMPANY.phone}
             </p>

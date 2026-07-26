@@ -21,8 +21,9 @@ export const env = {
   SITE_URL: read("NEXT_PUBLIC_SITE_URL"),
   DOI_SECRET: read("DOI_SECRET"),
 
-  // Meta-Pixel (öffentlich)
+  // Meta-Pixel (öffentlich). Haupt-Pixel sitewide, zweiter Pixel nur auf /danke.
   META_PIXEL_ID: read("NEXT_PUBLIC_META_PIXEL_ID"),
+  META_PIXEL_ID_DANKE: read("NEXT_PUBLIC_META_PIXEL_ID_DANKE"),
 
   // Bitrix / LIMITBREAKERS Lead-Webhook (n8n). URL enthält den Token im Pfad.
   BITRIX_WEBHOOK_URL: read("BITRIX_WEBHOOK_URL"),
