@@ -12,19 +12,36 @@ import { AddressAutocomplete } from "./AddressAutocomplete";
 import { EmailAutocomplete } from "./EmailAutocomplete";
 
 /**
- * Kontaktformular (§6) — 10 Felder, exakte Reihenfolge & Beschriftung.
- * Als kompakter 4-Schritte-Wizard: pro Schritt nur wenige Felder, damit das
- * Formular natürlicher und weniger wuchtig wirkt.
- * Client-Validierung via Zod (§7, pro Schritt via trigger), Honeypot + Zeitfalle (§9).
+ * Kontaktformular (§6). Schlanker 3-Schritte-Wizard: erst zwei schnelle
+ * Klick-Schritte (Vorhaben, Gebäude), dann gebündelt die Kontaktdaten.
+ *
+ * WICHTIG: Der Feldumfang ist NICHT frei wählbar — product_interest, timeframe,
+ * is_owner, building.type und building.roof_shape sind Pflichtfelder der
+ * LIMITBREAKERS-Spezifikation v1.0 (S. 3: „Fehlt eines, wird der Lead
+ * abgelehnt."). Vereinfacht wurde daher die Führung (weniger Schritte, große
+ * Auswahlkacheln, neutrale Fragen), nicht der Datenumfang.
+ *
+ * Client-Validierung via Zod (§7, pro Schritt), Honeypot + Zeitfalle (§9).
  * Submit → /api/lead → bei Erfolg Weiterleitung auf /danke (§8.1).
  */
 
 const STEPS = [
-  { title: "Ihre Daten", fields: ["vorname", "name"] },
-  { title: "Ihre Adresse", fields: ["strasse", "hausnummer", "plz", "ort"] },
-  { title: "Kontakt", fields: ["telefon", "email"] },
   { title: "Ihr Vorhaben", fields: ["product_interest", "timeframe", "hauseigentuemer"] },
-  { title: "Ihr Gebäude", fields: ["building_type", "roof_shape", "datenschutz"] },
+  { title: "Ihr Gebäude", fields: ["building_type", "roof_shape"] },
+  {
+    title: "Ihre Kontaktdaten",
+    fields: [
+      "vorname",
+      "name",
+      "strasse",
+      "hausnummer",
+      "plz",
+      "ort",
+      "telefon",
+      "email",
+      "datenschutz",
+    ],
+  },
 ] as const;
 
 const LAST = STEPS.length - 1;
@@ -33,11 +50,19 @@ const LAST = STEPS.length - 1;
 // (RHF `trigger` würde mit Zod-Resolver das GESAMTE Schema prüfen und wegen der
 //  noch leeren späteren Felder fehlschlagen.)
 const STEP_SCHEMAS = [
-  leadSchema.pick({ vorname: true, name: true }),
-  leadSchema.pick({ strasse: true, hausnummer: true, plz: true, ort: true }),
-  leadSchema.pick({ telefon: true, email: true }),
   leadSchema.pick({ product_interest: true, timeframe: true, hauseigentuemer: true }),
-  leadSchema.pick({ building_type: true, roof_shape: true, datenschutz: true }),
+  leadSchema.pick({ building_type: true, roof_shape: true }),
+  leadSchema.pick({
+    vorname: true,
+    name: true,
+    strasse: true,
+    hausnummer: true,
+    plz: true,
+    ort: true,
+    telefon: true,
+    email: true,
+    datenschutz: true,
+  }),
 ] as const;
 
 const PRODUCT_OPTIONS = ["PV", "Wärmepumpe", "PV und Wärmepumpe"] as const;
@@ -293,154 +318,28 @@ export function LeadForm() {
 
       {/* Schritt-Inhalt (mit sanfter Einblendung) */}
       <div key={step} className="wizard-step">
-        {/* SCHRITT 1 — PERSÖNLICHE DATEN */}
+        {/* SCHRITT 1 — IHR VORHABEN (drei schnelle Klicks) */}
         {step === 0 && (
-          <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <legend className="sr-only">Persönliche Daten</legend>
-            <div>
-              <label htmlFor={fieldId("vorname")} className="field-label">
-                Vorname*
-              </label>
-              <input
-                id={fieldId("vorname")}
-                className="field-input"
-                placeholder="Max"
-                autoComplete="given-name"
-                aria-invalid={invalid("vorname")}
-                {...register("vorname")}
-              />
-              {errors.vorname && <p className="field-error">{errors.vorname.message}</p>}
-            </div>
-            <div>
-              <label htmlFor={fieldId("name")} className="field-label">
-                Name*
-              </label>
-              <input
-                id={fieldId("name")}
-                className="field-input"
-                placeholder="Mustermann"
-                autoComplete="family-name"
-                aria-invalid={invalid("name")}
-                {...register("name")}
-              />
-              {errors.name && <p className="field-error">{errors.name.message}</p>}
-            </div>
-          </fieldset>
-        )}
-
-        {/* SCHRITT 2 — ADRESSE */}
-        {step === 1 && (
-          <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <legend className="sr-only">Adresse</legend>
-            <div className="sm:col-span-4">
-              <AddressAutocomplete
-                control={control}
-                setValue={setValue}
-                name="strasse"
-                label="Straße*"
-                placeholder="Musterstraße"
-                error={errors.strasse?.message}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label htmlFor={fieldId("hausnummer")} className="field-label">
-                Hausnummer*
-              </label>
-              <input
-                id={fieldId("hausnummer")}
-                className="field-input"
-                placeholder="42"
-                autoComplete="off"
-                aria-invalid={invalid("hausnummer")}
-                {...register("hausnummer")}
-              />
-              {errors.hausnummer && <p className="field-error">{errors.hausnummer.message}</p>}
-            </div>
-            <div className="sm:col-span-2">
-              <AddressAutocomplete
-                control={control}
-                setValue={setValue}
-                name="plz"
-                label="Postleitzahl*"
-                placeholder="10115"
-                inputMode="numeric"
-                error={errors.plz?.message}
-              />
-            </div>
-            <div className="sm:col-span-4">
-              <AddressAutocomplete
-                control={control}
-                setValue={setValue}
-                name="ort"
-                label="Ort*"
-                placeholder="Berlin"
-                error={errors.ort?.message}
-              />
-            </div>
-          </fieldset>
-        )}
-
-        {/* SCHRITT 3 — KONTAKT */}
-        {step === 2 && (
-          <fieldset className="grid grid-cols-1 gap-4">
-            <legend className="sr-only">Kontakt</legend>
-            <div>
-              <label htmlFor={fieldId("telefon")} className="field-label">
-                Telefonnummer*
-              </label>
-              <input
-                id={fieldId("telefon")}
-                className="field-input"
-                placeholder="+49 30 123456789"
-                inputMode="tel"
-                autoComplete="tel"
-                aria-invalid={invalid("telefon")}
-                {...register("telefon")}
-              />
-              <p className="mt-1 text-small text-ink-soft">Fachpartner rufen zuerst an.</p>
-              {errors.telefon && <p className="field-error">{errors.telefon.message}</p>}
-            </div>
-            <EmailAutocomplete control={control} setValue={setValue} error={errors.email?.message} />
-          </fieldset>
-        )}
-
-        {/* SCHRITT 4 — IHR VORHABEN */}
-        {step === 3 && (
           <div className="space-y-5">
             <OptionCards
-              label="Woran haben Sie Interesse?*"
+              label="Was möchten Sie umsetzen?*"
               name="product_interest"
               options={PRODUCT_OPTIONS}
               register={register}
               error={errors.product_interest?.message}
               idFor={fieldId}
             />
-
-            <div>
-              <label htmlFor={fieldId("timeframe")} className="field-label">
-                Wann möchten Sie umsetzen?*
-              </label>
-              <select
-                id={fieldId("timeframe")}
-                className="field-input"
-                defaultValue=""
-                aria-invalid={invalid("timeframe")}
-                {...register("timeframe")}
-              >
-                <option value="" disabled>
-                  Bitte wählen …
-                </option>
-                {TIMEFRAME_OPTIONS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-              {errors.timeframe && <p className="field-error">{errors.timeframe.message}</p>}
-            </div>
-
+            <OptionCards
+              label="Wann soll es losgehen?*"
+              name="timeframe"
+              options={TIMEFRAME_OPTIONS}
+              cols="sm:grid-cols-4"
+              register={register}
+              error={errors.timeframe?.message}
+              idFor={fieldId}
+            />
             <JaNeinGroup
-              label="Sind Sie Hauseigentümer?*"
+              label="Gehört Ihnen die Immobilie?*"
               name="hauseigentuemer"
               register={register}
               error={errors.hauseigentuemer?.message}
@@ -449,35 +348,22 @@ export function LeadForm() {
           </div>
         )}
 
-        {/* SCHRITT 5 — IHR GEBÄUDE + ZUSTIMMUNG */}
-        {step === 4 && (
-          <div>
-            <div>
-              <label htmlFor={fieldId("building_type")} className="field-label">
-                Gebäudetyp*
-              </label>
-              <select
-                id={fieldId("building_type")}
-                className="field-input"
-                defaultValue=""
-                aria-invalid={invalid("building_type")}
-                {...register("building_type")}
-              >
-                <option value="" disabled>
-                  Bitte wählen …
-                </option>
-                {BUILDING_OPTIONS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-              {errors.building_type && <p className="field-error">{errors.building_type.message}</p>}
-            </div>
+        {/* SCHRITT 2 — IHR GEBÄUDE */}
+        {step === 1 && (
+          <div className="space-y-5">
+            <OptionCards
+              label="Um welches Gebäude geht es?*"
+              name="building_type"
+              options={BUILDING_OPTIONS}
+              cols="sm:grid-cols-3"
+              register={register}
+              error={errors.building_type?.message}
+              idFor={fieldId}
+            />
 
-            <div className="mt-5">
+            <div>
               <span className="field-label" id={`${fieldId("roof_shape")}-label`}>
-                Dachform*{" "}
+                Welche Dachform hat das Gebäude?*{" "}
                 <span className="font-normal text-ink-soft">(Mehrfachauswahl möglich)</span>
               </span>
               <div
@@ -497,9 +383,120 @@ export function LeadForm() {
               </div>
               {errors.roof_shape && <p className="field-error">{errors.roof_shape.message}</p>}
             </div>
+          </div>
+        )}
+
+        {/* SCHRITT 3 — KONTAKTDATEN + ZUSTIMMUNG */}
+        {step === 2 && (
+          <div className="space-y-4">
+            <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <legend className="sr-only">Name</legend>
+              <div>
+                <label htmlFor={fieldId("vorname")} className="field-label">
+                  Vorname*
+                </label>
+                <input
+                  id={fieldId("vorname")}
+                  className="field-input"
+                  placeholder="Max"
+                  autoComplete="given-name"
+                  aria-invalid={invalid("vorname")}
+                  {...register("vorname")}
+                />
+                {errors.vorname && <p className="field-error">{errors.vorname.message}</p>}
+              </div>
+              <div>
+                <label htmlFor={fieldId("name")} className="field-label">
+                  Name*
+                </label>
+                <input
+                  id={fieldId("name")}
+                  className="field-input"
+                  placeholder="Mustermann"
+                  autoComplete="family-name"
+                  aria-invalid={invalid("name")}
+                  {...register("name")}
+                />
+                {errors.name && <p className="field-error">{errors.name.message}</p>}
+              </div>
+            </fieldset>
+
+            <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-6">
+              <legend className="sr-only">Adresse</legend>
+              <div className="sm:col-span-4">
+                <AddressAutocomplete
+                  control={control}
+                  setValue={setValue}
+                  name="strasse"
+                  label="Straße*"
+                  placeholder="Musterstraße"
+                  error={errors.strasse?.message}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor={fieldId("hausnummer")} className="field-label">
+                  Hausnummer*
+                </label>
+                <input
+                  id={fieldId("hausnummer")}
+                  className="field-input"
+                  placeholder="42"
+                  autoComplete="off"
+                  aria-invalid={invalid("hausnummer")}
+                  {...register("hausnummer")}
+                />
+                {errors.hausnummer && <p className="field-error">{errors.hausnummer.message}</p>}
+              </div>
+              <div className="sm:col-span-2">
+                <AddressAutocomplete
+                  control={control}
+                  setValue={setValue}
+                  name="plz"
+                  label="Postleitzahl*"
+                  placeholder="10115"
+                  inputMode="numeric"
+                  error={errors.plz?.message}
+                />
+              </div>
+              <div className="sm:col-span-4">
+                <AddressAutocomplete
+                  control={control}
+                  setValue={setValue}
+                  name="ort"
+                  label="Ort*"
+                  placeholder="Berlin"
+                  error={errors.ort?.message}
+                />
+              </div>
+            </fieldset>
+
+            <fieldset className="grid grid-cols-1 gap-4">
+              <legend className="sr-only">Kontakt</legend>
+              <div>
+                <label htmlFor={fieldId("telefon")} className="field-label">
+                  Telefonnummer*
+                </label>
+                <input
+                  id={fieldId("telefon")}
+                  className="field-input"
+                  placeholder="+49 30 123456789"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  aria-invalid={invalid("telefon")}
+                  {...register("telefon")}
+                />
+                <p className="mt-1 text-small text-ink-soft">Fachpartner rufen zuerst an.</p>
+                {errors.telefon && <p className="field-error">{errors.telefon.message}</p>}
+              </div>
+              <EmailAutocomplete
+                control={control}
+                setValue={setValue}
+                error={errors.email?.message}
+              />
+            </fieldset>
 
             {/* Datenschutz-Häkchen (Pflicht) */}
-            <div className="mt-6">
+            <div className="pt-1">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -523,7 +520,7 @@ export function LeadForm() {
             </div>
 
             {/* Newsletter-Opt-in (optional) */}
-            <div className="mt-3">
+            <div>
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -645,18 +642,21 @@ function JaNeinGroup({
   );
 }
 
-/** Einfachauswahl als Karten (z. B. Produktinteresse). */
+/** Einfachauswahl als Karten (Produktinteresse, Zeitraum, Gebäudetyp). */
 function OptionCards({
   label,
   name,
   options,
+  cols = "sm:grid-cols-3",
   register,
   error,
   idFor,
 }: {
   label: string;
-  name: "product_interest";
+  name: "product_interest" | "timeframe" | "building_type";
   options: readonly string[];
+  /** Spalten ab sm — Anzahl passend zur Optionenzahl. */
+  cols?: string;
   register: UseFormRegister<LeadInput>;
   error?: string;
   idFor: (n: string) => string;
@@ -669,7 +669,7 @@ function OptionCards({
       <div
         role="radiogroup"
         aria-labelledby={`${idFor(name)}-label`}
-        className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-3"
+        className={`mt-1 grid grid-cols-2 gap-2 ${cols}`}
       >
         {options.map((opt) => (
           <label
