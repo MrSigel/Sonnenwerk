@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Check } from "@/components/ui/Check";
+import { trackEvent } from "@/components/analytics/Tracker";
 
 /**
  * Exit-Intent-Banner — gewinnt abspringende Besucher zurück (typisch für
@@ -36,6 +37,7 @@ export function ExitIntentBanner() {
       } catch {
         /* ignore */
       }
+      trackEvent("exit", "shown");
       setOpen(true);
     };
 
@@ -66,11 +68,16 @@ export function ExitIntentBanner() {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") { trackEvent("exit", "dismissed"); setOpen(false); }
     };
     document.addEventListener("keydown", onKey);
     dialogRef.current?.focus();
-    return () => document.removeEventListener("keydown", onKey);
+    // Mindestens 3 s sichtbar = als gelesen werten.
+    const readTimer = window.setTimeout(() => trackEvent("exit", "read"), 3000);
+    return () => {
+      window.clearTimeout(readTimer);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   if (!open) return null;
@@ -84,7 +91,7 @@ export function ExitIntentBanner() {
     >
       <div
         className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
-        onClick={() => setOpen(false)}
+        onClick={() => { trackEvent("exit", "dismissed"); setOpen(false); }}
         aria-hidden="true"
       />
       <div
@@ -94,7 +101,7 @@ export function ExitIntentBanner() {
       >
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() => { trackEvent("exit", "dismissed"); setOpen(false); }}
           aria-label="Schließen"
           className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-sunk hover:text-ink"
         >
@@ -123,7 +130,7 @@ export function ExitIntentBanner() {
           )}
         </ul>
 
-        <a href="#anfrage" onClick={() => setOpen(false)} className="btn-primary group mt-6 w-full">
+        <a href="#anfrage" onClick={() => { trackEvent("exit", "clicked"); setOpen(false); }} className="btn-primary group mt-6 w-full">
           Jetzt kostenlos anfragen
           <svg viewBox="0 0 20 20" fill="none" className="btn-arrow h-4 w-4">
             <path d="M4 10h11M11 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -131,7 +138,7 @@ export function ExitIntentBanner() {
         </a>
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() => { trackEvent("exit", "dismissed"); setOpen(false); }}
           className="mt-3 w-full text-center text-small text-ink-soft underline-offset-2 hover:text-ink hover:underline"
         >
           Nein danke, später

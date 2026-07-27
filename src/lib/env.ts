@@ -28,9 +28,12 @@ export const env = {
   // Bitrix / LIMITBREAKERS Lead-Webhook (n8n). URL enthält den Token im Pfad.
   BITRIX_WEBHOOK_URL: read("BITRIX_WEBHOOK_URL"),
 
-  // Optional: Upstash Rate-Limiting
+  // Optional: Upstash — Rate-Limiting UND Analytics-Speicher
   UPSTASH_REDIS_REST_URL: read("UPSTASH_REDIS_REST_URL"),
   UPSTASH_REDIS_REST_TOKEN: read("UPSTASH_REDIS_REST_TOKEN"),
+
+  // Analytics-Bereich /admin. Passwort NIE im Code — ausschließlich per ENV.
+  ADMIN_PASSWORD: read("ADMIN_PASSWORD"),
 };
 
 /** Lead-Weiterleitung an Bitrix/LIMITBREAKERS-Webhook möglich (URL vorhanden). */
@@ -49,6 +52,15 @@ export const hasMetaPixel = () => Boolean(env.META_PIXEL_ID);
 /** Verteiltes Upstash-Rate-Limiting konfiguriert (sonst In-Memory-Fallback). */
 export const hasUpstash = () =>
   Boolean(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN);
+
+/**
+ * Analytics-Erfassung möglich. Ohne Upstash werden Ereignisse still verworfen —
+ * die Seite funktioniert normal weiter.
+ */
+export const hasAnalytics = () => hasUpstash();
+
+/** /admin nutzbar (Passwort gesetzt + Secret zum Signieren der Sitzung). */
+export const hasAdmin = () => Boolean(env.ADMIN_PASSWORD && env.DOI_SECRET);
 
 /** Öffentliche Basis-URL mit robustem Fallback (nur für Link-Erzeugung). */
 export function siteUrl(): string {

@@ -6,6 +6,7 @@ import { siteUrl } from "@/lib/env";
 import { ConsentProvider } from "@/components/consent/ConsentProvider";
 import { ConsentBanner } from "@/components/consent/ConsentBanner";
 import { MetaPixel } from "@/components/consent/MetaPixel";
+import { Tracker } from "@/components/analytics/Tracker";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { ExitIntentBanner } from "@/components/marketing/ExitIntentBanner";
 
@@ -54,6 +55,7 @@ export default function RootLayout({
           <ExitIntentBanner />
           <ConsentBanner />
           <MetaPixel />
+          <Tracker />
         </ConsentProvider>
       </body>
     </html>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { leadSchema, LEAD_FIELD_LABELS, type LeadInput } from "@/lib/schema";
 import { storePendingLead } from "@/lib/pendingLead";
+import { trackEvent } from "@/components/analytics/Tracker";
 import { Check } from "@/components/ui/Check";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { EmailAutocomplete } from "./EmailAutocomplete";
@@ -100,7 +101,15 @@ export function LeadForm() {
 
   useEffect(() => {
     formLoadedAt.current = Date.now();
+    // Formular wurde angezeigt — Ausgangswert für die Abbruch-Analyse.
+    trackEvent("funnel", "form_view");
   }, []);
+
+  // Erreichten Schritt melden (anonym, nur die Stufe).
+  useEffect(() => {
+    if (step === 0) trackEvent("funnel", "step1");
+    if (step === 1) trackEvent("funnel", "step2");
+  }, [step]);
 
   const {
     register,
@@ -213,6 +222,7 @@ export function LeadForm() {
         return;
       }
 
+      trackEvent("funnel", "submit");
       storePendingLead({
         vorname: values.vorname,
         name: values.name,
