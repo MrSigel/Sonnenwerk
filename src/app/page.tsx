@@ -8,6 +8,7 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 import { WhyGrid } from "@/components/sections/WhyGrid";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { Faq } from "@/components/sections/Faq";
+import { ScrollToForm } from "@/components/ui/ScrollToForm";
 
 /**
  * Single-Page Landingpage — reiche, erzählerische Struktur im Referenz-Prinzip:
@@ -18,6 +19,7 @@ import { Faq } from "@/components/sections/Faq";
 export default function HomePage() {
   return (
     <>
+      <ScrollToForm />
       <Header />
       <main>
         <HeroContact />
