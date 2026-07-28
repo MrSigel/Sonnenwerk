@@ -29,6 +29,20 @@ export function trackEvent(kind: "funnel" | "exit", name: string): void {
   if (!list.includes(name)) list.push(name);
 }
 
+/**
+ * Eigene Aufrufe nicht mitzählen: Der Analytics-Bereich selbst wird nie erfasst,
+ * und wer dort angemeldet ist, wird auch auf der Website nicht gezählt (Cookie
+ * `sw_notrack`, beim Abmelden wieder entfernt).
+ */
+function isExcluded(path: string): boolean {
+  if (path.startsWith("/admin")) return true;
+  try {
+    return document.cookie.split("; ").some((c) => c.startsWith("sw_notrack="));
+  } catch {
+    return false;
+  }
+}
+
 function sourceHost(): string | undefined {
   try {
     if (!document.referrer) return "direct";
@@ -49,6 +63,8 @@ export function Tracker() {
   const visibleSince = useRef<Record<string, number>>({});
 
   useEffect(() => {
+    if (isExcluded(pathname || "/")) return;
+
     started.current = Date.now();
     maxScroll.current = 0;
     sentFirst.current = false;

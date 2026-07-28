@@ -29,6 +29,11 @@ export async function POST(req: Request) {
     const parsed = trackPayload.safeParse(JSON.parse(raw));
     if (!parsed.success) return noContent;
 
+    // Zweite Absicherung: Der Analytics-Bereich zählt sich nie selbst mit,
+    // ebenso wenig angemeldete Betreiber (Cookie `sw_notrack`).
+    if (parsed.data.path.startsWith("/admin")) return noContent;
+    if (req.headers.get("cookie")?.includes("sw_notrack=")) return noContent;
+
     await recordEvents(parsed.data);
   } catch {
     /* Analytics schlägt nie auf den Besucher durch. */

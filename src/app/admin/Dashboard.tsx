@@ -28,7 +28,12 @@ const EXIT_LABELS: Array<[string, string]> = [
 
 function sum(stats: DayStats, prefix: string): number {
   let n = 0;
-  for (const [k, v] of Object.entries(stats)) if (k.startsWith(prefix)) n += v;
+  for (const [k, v] of Object.entries(stats)) {
+    // Aufrufe des Analytics-Bereichs selbst gehören nicht in die Statistik.
+    // (Greift auch rückwirkend für bereits gezählte Werte.)
+    if (k.startsWith("pv:/admin")) continue;
+    if (k.startsWith(prefix)) n += v;
+  }
   return n;
 }
 

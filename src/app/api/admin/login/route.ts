@@ -43,11 +43,22 @@ export async function POST(req: Request) {
     path: "/",
     maxAge: SESSION_MAX_AGE,
   });
+  // Eigene Besuche aus der Statistik heraushalten. Bewusst NICHT httpOnly —
+  // der Tracker im Browser muss das Cookie lesen können. Es enthält keinerlei
+  // Geheimnis, nur die Markierung „nicht mitzählen".
+  res.cookies.set("sw_notrack", "1", {
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 180 * 24 * 60 * 60,
+  });
   return res;
 }
 
 export async function DELETE() {
   const res = NextResponse.json({ ok: true });
   res.cookies.set(SESSION_COOKIE, "", { path: "/", maxAge: 0 });
+  res.cookies.set("sw_notrack", "", { path: "/", maxAge: 0 });
   return res;
 }
